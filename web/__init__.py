@@ -1,6 +1,8 @@
 from flask import Flask
 from web.models import db, User, ActivityLog
 import logging
+from sqlalchemy import inspect
+from sqlalchemy import text
 
 def create_app():
     web = Flask(__name__)
@@ -21,6 +23,27 @@ def create_app():
     with web.app_context():
         db.create_all()
         logging.info("Database tables created.")
+        # Ensure finance_transactions has required columns (migrations for first-deploy)
+        try:
+            inspector = inspect(db.engine)
+            if 'finance_transactions' in inspector.get_table_names():
+                existing_cols = [c['name'] for c in inspector.get_columns('finance_transactions')]
+                alter_queries = []
+                if 'units' not in existing_cols:
+                    alter_queries.append("ALTER TABLE finance_transactions ADD COLUMN units INTEGER NOT NULL DEFAULT 1;")
+                if 'receipt' not in existing_cols:
+                    alter_queries.append("ALTER TABLE finance_transactions ADD COLUMN receipt TEXT;")
+
+                if alter_queries:
+                    for q in alter_queries:
+                        try:
+                            db.session.execute(text(q))
+                        except Exception as e:
+                            logging.error(f"Failed to run alter query '{q}': {e}")
+                    db.session.commit()
+                    logging.info('Applied missing finance_transactions column fixes.')
+        except Exception as e:
+            logging.error(f'Error while ensuring finance_transactions columns: {e}')
         
         try:
             # Create default admin user if it doesn't exist
