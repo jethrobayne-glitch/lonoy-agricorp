@@ -418,11 +418,11 @@
             
             <div class="manage-section">
                 <div class="manage-item">
-                    <h4>Folders</h4>
+                    <h4>Courses</h4>
                     <div class="item-list" id="foldersList">
-                        <div class="loading">Loading folders...</div>
+                        <div class="loading">Loading courses...</div>
                     </div>
-                    <button onclick="openAddModal('folder')">Add Folder</button>
+                    <button onclick="openAddModal('folder')">Add Course</button>
                 </div>
                 
                 <div class="manage-item">
@@ -490,7 +490,7 @@
                     <div class="form-group">
                         <label for="materialFolder">Folder</label>
                         <select id="materialFolder" name="folder_id">
-                            <option value="">Select folder</option>
+                            <option value="">Select course</option>
                         </select>
                     </div>
                     
@@ -1013,6 +1013,7 @@
         function showAlert(containerId, message, type) {
             const container = document.getElementById(containerId);
             container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+
         }
 
         async function exportToPDF() {
