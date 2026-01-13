@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPAF - Employees</title>
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+
+    body {
+        height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .main {
+        width: 100vw;
+        display: flex;
+        height: 92vh;
+    }
+
+    .content {
+        width: 85vw;
+        padding: 20px;
+    }
+
+    .folders {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .inventory-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .inventory-table th {
+        background-color: #0F4275;
+        color: white;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+    }
+
+    .inventory-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.9rem;
+        color: #333;
+    }
+
+    .inventory-table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .inventory-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .inventory-table td:last-child {
+        white-space: nowrap;
+        min-width: 120px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .action-btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        font-family: inherit;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .edit-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .action-btn:hover {
+        opacity: 0.8;
+    }
+</style>
+<body>
+
+    {% include 'partials/navbar.html' %}
+
+    <div class="main">
+
+        {% include 'partials/lpaf_sidebar.html' %}
+
+        <div class="content">
+            <div class="folders">
+                <div>
+                    <input type="search" id="searchInput" placeholder="Search employees..." style="padding:5px 10px;font-size:1rem;border:1px solid #ccc;border-radius:5px;width:320px;">
+                    <button id="searchBtn" style="padding:6px 10px;font-size:1rem;background-color:#156fcf;color:white;border:none;border-radius:5px;cursor:pointer;">Search</button>
+                </div>
+
+                <button id="addEmployeeBtn" style="padding: 6px 10px;font-size: 1rem;background-color: #4CAF50;color: white;border: none;border-radius: 5px;">Add Employee</button>
+            </div>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Job Description</th>
+                        <th>Legal Documents</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px;">Loading employees...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employeeModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <div class="modal-header" style="padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="modalTitle">Add Employee</h3>
+                <span class="close" onclick="closeModal()" style="font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            </div>
+            <div id="modalMessage" style="padding: 0 20px; margin-top: 15px; display: none;"></div>
+            <form id="employeeForm" style="padding: 20px;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="name" style="display: block; margin-bottom: 5px; font-weight: 500;">Name:</label>
+                    <input type="text" id="name" name="name" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <div class="error-message" id="nameError" style="color: #f44336; font-size: 12px; margin-top: 3px; display: none;"></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="position" style="display: block; margin-bottom: 5px; font-weight: 500;">Position:</label>
+                    <input type="text" id="position" name="position" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <div class="error-message" id="positionError" style="color: #f44336; font-size: 12px; margin-top: 3px; display: none;"></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="job_description" style="display: block; margin-bottom: 5px; font-weight: 500;">Job Description:</label>
+                    <textarea id="job_description" name="job_description" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-height: 100px; resize: vertical;"></textarea>
+                    <div class="error-message" id="jobDescriptionError" style="color: #f44336; font-size: 12px; margin-top: 3px; display: none;"></div>
+                </div>
+                <div class="modal-buttons" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()" style="padding: 8px 16px; border: 1px solid #ddd; background-color: #f5f5f5; color: #333; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" style="padding: 8px 16px; border: none; background-color: #4CAF50; color: white; border-radius: 4px; cursor: pointer;">Add Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Documents Modal -->
+    <div id="documentsModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 0; border-radius: 8px; width: 90%; max-width: 800px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <div class="modal-header" style="padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="documentsModalTitle">Employee Documents</h3>
+                <span class="close" onclick="closeDocumentsModal()" style="font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            </div>
+            <div style="margin: 15px 20px;">
+                <input type="file" id="documentFileInput" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx,.ppt,.pptx" style="display: none;">
+                <button onclick="document.getElementById('documentFileInput').click()" style="padding: 8px 16px; border: none; background-color: #4CAF50; color: white; border-radius: 4px; cursor: pointer;">Upload Documents</button>
+            </div>
+            <div id="documentsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; padding: 0 20px 20px;">
+                <div style="text-align: center; padding: 40px; grid-column: 1 / -1;">Loading documents...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let employees = [];
+        let currentEmployee = null;
+        let isEditing = false;
+        let currentEmployeeId = null;
+
+        // DOM Elements
+        const employeesTableBody = document.getElementById('employeesTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+        const employeeModal = document.getElementById('employeeModal');
+        const employeeForm = document.getElementById('employeeForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const modalMessage = document.getElementById('modalMessage');
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            addEmployeeBtn.addEventListener('click', () => openModal());
+            employeeForm.addEventListener('submit', handleSubmit);
+            searchBtn.addEventListener('click', handleSearch);
+            
+            // Dynamic search as you type
+            searchInput.addEventListener('input', handleSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+            
+            // Setup file upload
+            document.getElementById('documentFileInput').addEventListener('change', handleFileUpload);
+        }
+
+        // Load employees from API
+        async function loadEmployees(search = '') {
+            try {
+                const url = search ? `/api/employees?search=${encodeURIComponent(search)}` : '/api/employees';
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    employees = data.employees;
+                    renderEmployeesTable();
+                } else {
+                    employeesTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px;">Error loading employees: ${data.message}</td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                employeesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px;">Error loading employees</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Render employees table
+        function renderEmployeesTable() {
+            if (employees.length === 0) {
+                employeesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px;">No employees found.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            employeesTableBody.innerHTML = employees.map(employee => `
+                <tr>
+                    <td>${escapeHtml(employee.name)}</td>
+                    <td>${escapeHtml(employee.position)}</td>
+                    <td>${escapeHtml(employee.job_description)}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="viewDocuments(${employee.id}, '${escapeHtml(employee.name)}')" style="font-size: 0.75rem;">
+                            📁 ${employee.documents_count || 0} Files
+                        </button>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit-btn" onclick="editEmployee(${employee.id})">Edit</button>
+                            <button class="action-btn delete-btn" onclick="deleteEmployee(${employee.id})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Handle search
+        async function handleSearch() {
+            const search = searchInput.value.trim();
+            await loadEmployees(search);
+        }
+
+        // Open modal for add/edit
+        function openModal(editing = false, employee = null) {
+            isEditing = editing;
+            currentEmployee = employee;
+            
+            modalTitle.textContent = editing ? 'Edit Employee' : 'Add Employee';
+            submitBtn.textContent = editing ? 'Update Employee' : 'Add Employee';
+            
+            if (editing && employee) {
+                populateForm(employee);
+            } else {
+                clearForm();
+            }
+            
+            clearErrors();
+            clearMessage();
+            employeeModal.style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal() {
+            employeeModal.style.display = 'none';
+            currentEmployee = null;
+            isEditing = false;
+            clearForm();
+            clearErrors();
+            clearMessage();
+        }
+
+        // Populate form with employee data
+        function populateForm(employee) {
+            document.getElementById('name').value = employee.name;
+            document.getElementById('position').value = employee.position;
+            document.getElementById('job_description').value = employee.job_description;
+        }
+
+        // Clear form
+        function clearForm() {
+            employeeForm.reset();
+        }
+
+        // Clear error messages
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+        }
+
+        // Clear modal message
+        function clearMessage() {
+            modalMessage.style.display = 'none';
+            modalMessage.textContent = '';
+            modalMessage.className = '';
+        }
+
+        // Show message
+        function showMessage(message, type = 'success') {
+            modalMessage.textContent = message;
+            modalMessage.className = type === 'success' ? 'success-message' : 'error-message';
+            modalMessage.style.display = 'block';
+            modalMessage.style.padding = '10px';
+            modalMessage.style.borderRadius = '4px';
+            modalMessage.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+            modalMessage.style.color = type === 'success' ? '#155724' : '#721c24';
+            modalMessage.style.border = `1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'}`;
+        }
+
+        // Handle form submission
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            clearErrors();
+            clearMessage();
+            
+            const formData = new FormData(employeeForm);
+            const employeeData = {
+                name: formData.get('name').trim(),
+                position: formData.get('position').trim(),
+                job_description: formData.get('job_description').trim()
+            };
+
+            // Basic validation
+            if (!validateForm(employeeData)) {
+                return;
+            }
+
+            // Set loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = isEditing ? 'Updating...' : 'Adding...';
+
+            try {
+                const url = isEditing ? `/api/employees/${currentEmployee.id}` : '/api/employees';
+                const method = isEditing ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(employeeData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    await loadEmployees(); // Reload the table
+                    
+                    // Close modal after a short delay
+                    setTimeout(() => {
+                        closeModal();
+                    }, 1500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showMessage('An error occurred while saving the employee', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isEditing ? 'Update Employee' : 'Add Employee';
+            }
+        }
+
+        // Validate form
+        function validateForm(data) {
+            let isValid = true;
+
+            if (!data.name) {
+                document.getElementById('nameError').textContent = 'Name is required';
+                document.getElementById('nameError').style.display = 'block';
+                isValid = false;
+            }
+
+            if (!data.position) {
+                document.getElementById('positionError').textContent = 'Position is required';
+                document.getElementById('positionError').style.display = 'block';
+                isValid = false;
+            }
+
+            if (!data.job_description) {
+                document.getElementById('jobDescriptionError').textContent = 'Job description is required';
+                document.getElementById('jobDescriptionError').style.display = 'block';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Edit employee
+        function editEmployee(employeeId) {
+            const employee = employees.find(s => s.id === employeeId);
+            if (employee) {
+                openModal(true, employee);
+            }
+        }
+
+        // Delete employee
+        async function deleteEmployee(employeeId) {
+            if (!confirm('Are you sure you want to delete this employee? This will also delete all associated documents.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/employees/${employeeId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await loadEmployees(); // Reload the table
+                } else {
+                    alert('Error deleting employee: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error deleting employee:', error);
+                alert('Error deleting employee');
+            }
+        }
+
+        // Document Management Functions
+        
+        // View documents for an employee
+        async function viewDocuments(employeeId, employeeName) {
+            currentEmployeeId = employeeId;
+            document.getElementById('documentsModalTitle').textContent = `Documents for ${employeeName}`;
+            document.getElementById('documentsModal').style.display = 'block';
+            
+            await loadDocuments(employeeId);
+        }
+
+        // Load documents for an employee
+        async function loadDocuments(employeeId) {
+            try {
+                const response = await fetch(`/api/employees/${employeeId}/documents`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderDocumentsGrid(data.documents);
+                } else {
+                    document.getElementById('documentsGrid').innerHTML = 
+                        `<div style="text-align: center; padding: 20px; grid-column: 1 / -1;">Error loading documents: ${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                document.getElementById('documentsGrid').innerHTML = 
+                    '<div style="text-align: center; padding: 20px; grid-column: 1 / -1;">Error loading documents</div>';
+            }
+        }
+
+        // Render documents in grid layout
+        function renderDocumentsGrid(documents) {
+            const grid = document.getElementById('documentsGrid');
+            
+            if (documents.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; padding: 40px; grid-column: 1 / -1;">No documents uploaded yet</div>';
+                return;
+            }
+            
+            grid.innerHTML = documents.map(doc => {
+                const isImage = doc.mime_type && doc.mime_type.startsWith('image/');
+                const thumbnailSrc = doc.thumbnail ? doc.thumbnail : (isImage ? `/static/uploads/employee_documents/${doc.filename}` : getFileIcon(doc.mime_type));
+                
+                return `
+                    <div style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; background: white; display: flex; flex-direction: column; height: 250px;">
+                        <div style="height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; background: #f5f5f5; border-radius: 4px;">
+                            ${isImage 
+                                ? `<img src="${thumbnailSrc}" alt="${escapeHtml(doc.original_name)}" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px;">` 
+                                : `<div style="font-size: 48px;">${getFileIcon(doc.mime_type)}</div>`
+                            }
+                        </div>
+                        <div style="font-size: 0.85rem; font-weight: 500; margin-bottom: 5px; word-break: break-word; flex-grow: 1; display: flex; align-items: flex-start;">${escapeHtml(doc.original_name)}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 10px;">${formatFileSize(doc.file_size)}</div>
+                        <div style="display: flex; gap: 5px; justify-content: center; margin-top: auto;">
+                            <button onclick="downloadDocument('${doc.filename}', '${escapeHtml(doc.original_name)}')" 
+                                    class="action-btn edit-btn" style="font-size: 0.75rem; padding: 4px 8px;">Download</button>
+                            <button onclick="deleteDocument(${doc.id})" 
+                                    class="action-btn delete-btn" style="font-size: 0.75rem; padding: 4px 8px;">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Get file icon based on MIME type
+        function getFileIcon(mimeType) {
+            if (!mimeType) return '📄';
+            
+            if (mimeType.startsWith('image/')) return '🖼️';
+            if (mimeType.includes('pdf')) return '📕';
+            if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
+            if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📗';
+            if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return '📙';
+            if (mimeType.includes('text')) return '📄';
+            return '📎';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 B';
+            
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Handle file upload
+        async function handleFileUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+            
+            const uploadPromises = Array.from(files).map(file => uploadSingleFile(file));
+            
+            try {
+                await Promise.all(uploadPromises);
+                await loadDocuments(currentEmployeeId); // Reload documents
+                await loadEmployees(); // Reload employees to update count
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Some files failed to upload');
+            }
+            
+            // Clear file input
+            event.target.value = '';
+        }
+
+        // Upload single file
+        async function uploadSingleFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await fetch(`/api/employees/${currentEmployeeId}/documents`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message);
+            }
+            
+            return data;
+        }
+
+        // Download document
+        function downloadDocument(filename, originalName) {
+            const link = document.createElement('a');
+            link.href = `/static/uploads/employee_documents/${filename}`;
+            link.download = originalName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Delete document
+        async function deleteDocument(documentId) {
+            if (!confirm('Are you sure you want to delete this document?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/employee_documents/${documentId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    await loadDocuments(currentEmployeeId); // Reload documents
+                    await loadEmployees(); // Reload employees to update count
+                } else {
+                    alert('Error deleting document: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error deleting document:', error);
+                alert('Error deleting document');
+            }
+        }
+
+        // Close documents modal
+        function closeDocumentsModal() {
+            document.getElementById('documentsModal').style.display = 'none';
+            currentEmployeeId = null;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const employeeModal = document.getElementById('employeeModal');
+            const documentsModal = document.getElementById('documentsModal');
+            
+            if (event.target === employeeModal) {
+                closeModal();
+            }
+            if (event.target === documentsModal) {
+                closeDocumentsModal();
+            }
+        };
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.toString().replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>

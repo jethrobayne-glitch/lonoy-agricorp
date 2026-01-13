@@ -1,0 +1,33 @@
+{% set _dept = department if department is defined else (session.get('selected_role') if session is defined else '') %}
+{% set _dept_lower = _dept|lower if _dept else '' %}
+
+<style>
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 8vh;
+        padding: 0 26px;
+    }
+
+    /* Department-specific header colors (static CSS to avoid template parsing issues) */
+    .header-admin { background-color: #F9A825; }
+    .header-lpaf  { background-color: #0F4275; }
+    .header-tvet  { background-color: #2E7D32; }
+
+    .logout-btn {
+        padding: 10px 15px;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="header {% if _dept_lower == 'admin' %}header-admin{% elif _dept_lower == 'lpaf' %}header-lpaf{% elif _dept_lower == 'tvet' %}header-tvet{% endif %}">
+    <div style="display: flex;align-items: center; height: 100%; gap: 15px;">
+        <img src="{{ url_for('static', filename='img/mini-logo.png') }}" style="height: 50%;">
+        <h2 style="color: white;">LONOY AGRIVENTURES CORP</h2>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="{{ url_for('auth.role_selection') }}" style="text-decoration: none; color: white; background-color: #FF9800; padding: 10px 15px; border-radius: 10px;">Change Department</a>
+        <a href="{{ url_for('auth.logout') }}" class="logout-btn" style="text-decoration: none; color: white; background-color: #f44336; border: none; cursor: pointer;">LOGOUT</a>
+    </div>
+</div>

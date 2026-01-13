@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN - Logs</title>
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+
+    body {
+        height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .main {
+        width: 100vw;
+        display: flex;
+        height: 92vh;
+    }
+
+    .content {
+        width: 85vw;
+        padding: 20px;
+    }
+
+    .folders {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .inventory-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .inventory-table th {
+        background-color: #F9A825; /* amber-700 */
+        color: white;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+    }
+
+    .inventory-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.9rem;
+        color: #333;
+    }
+
+    .inventory-table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .inventory-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .inventory-table td:last-child {
+        white-space: nowrap;
+        min-width: 120px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .action-btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        font-family: inherit;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .edit-btn {
+        background-color: #F9A825; /* amber-700 */
+        color: white;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .action-btn:hover {
+        opacity: 0.8;
+    }
+
+    .action-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .action-login {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .action-logout {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .action-access {
+        background-color: #2196F3;
+        color: white;
+    }
+</style>
+<body>
+
+    {% include 'partials/navbar.html' %}
+
+    <div class="main">
+
+        {% include 'partials/admin_sidebar.html' %}
+
+        <div class="content">
+            <div class="folders">
+                <form method="GET" style="display: flex; align-items: center;">
+                    <select name="department" style="padding: 5px 10px;font-size: 1rem;margin-right: 5px;">
+                        <option value="all" {% if current_filter == 'all' %}selected{% endif %}>All Departments</option>
+                        <option value="admin" {% if current_filter == 'admin' %}selected{% endif %}>ADMIN</option>
+                        <option value="lpaf" {% if current_filter == 'lpaf' %}selected{% endif %}>LPAF</option>
+                        <option value="tvet" {% if current_filter == 'tvet' %}selected{% endif %}>TVET</option>
+                    </select>
+                    <button type="submit" style="padding: 6px 10px;font-size: 1rem;background-color: #FF6F00;color: white;border: none;border-radius: 5px;">Filter</button>
+                </form>
+
+                <button onclick="exportLogs()" style="padding: 6px 10px;font-size: 1rem;background-color: #F9A825;color: white;border: none;border-radius: 5px;">Export</button>
+            </div>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Action</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if logs %}
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ log.name }}</td>
+                            <td>{{ log.position or 'N/A' }}</td>
+                            <td>
+                                <span class="action-badge action-{{ log.action }}">
+                                    {{ log.action.title() }}
+                                </span>
+                            </td>
+                            <td>{{ log.department or 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+                                No activity logs found.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function exportLogs() {
+            // Get current filter
+            const departmentFilter = document.querySelector('select[name="department"]').value;
+            
+            // Create CSV content
+            let csvContent = "Date & Time,Name,Position,Action,Department\n";
+            
+            // Get table rows
+            const rows = document.querySelectorAll('.inventory-table tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 5) {
+                    const rowData = [
+                        cells[0].textContent.trim(),
+                        cells[1].textContent.trim(),
+                        cells[2].textContent.trim(),
+                        cells[3].textContent.trim(),
+                        cells[4].textContent.trim()
+                    ];
+                    csvContent += rowData.map(field => `"${field}"`).join(',') + '\n';
+                }
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `activity_logs_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Auto-refresh logs every 30 seconds
+        setInterval(function() {
+            window.location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPAF - Finance</title>
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+
+    body {
+        height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .main {
+        width: 100vw;
+        display: flex;
+        height: 92vh;
+    }
+
+    .content {
+        width: 85vw;
+        padding: 20px;
+    }
+
+    .folders {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .inventory-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .inventory-table th {
+        background-color: #0F4275;
+        color: white;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+    }
+
+    .inventory-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.9rem;
+        color: #333;
+    }
+
+    .inventory-table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .inventory-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .inventory-table td:last-child {
+        white-space: nowrap;
+        min-width: 120px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .action-btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        font-family: inherit;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .edit-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .action-btn:hover {
+        opacity: 0.8;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .total {
+        position: sticky;
+        bottom: 0;
+        background-color: #0F4275;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+        border-top: 3px solid #FF9800;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        margin-top: 0;
+        z-index: 10;
+    }
+
+    .total p {
+        margin: 0;
+    }
+
+    .total p:last-child {
+        font-size: 1.3rem;
+        color: #4CAF50;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 30px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        color: #0F4275;
+    }
+
+    .close {
+        font-size: 28px;
+        font-weight: bold;
+        color: #aaa;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #000;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-family: inherit;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #ccc;
+        color: #333;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    /* Group Styles */
+    .group {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .group-header {
+        background-color: #0F4275;
+        color: white;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .arrow-icon {
+        margin-left: 10px;
+        transition: transform 0.2s;
+        font-size: 1.2rem;
+    }
+
+    .group-header.expanded .arrow-icon {
+        transform: rotate(180deg);
+    }
+
+    .group-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .group-total {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #4CAF50;
+    }
+
+    .group-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-bottom: 15px;
+    }
+
+    .group-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        font-family: inherit;
+    }
+
+    .group-add-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .group-remove-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .group-content {
+        padding: 15px;
+        background-color: #f9f9f9;
+        display: none;
+    }
+
+    .group-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .group-table th {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 8px;
+        text-align: left;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .group-table td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.85rem;
+        color: #333;
+    }
+
+    .group-table tbody tr:hover {
+        background-color: #e8f5e8;
+    }
+
+    .no-groups {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-style: italic;
+    }
+</style>
+<body>
+
+    {% include 'partials/navbar.html' %}
+
+    <div class="main">
+
+        {% include 'partials/lpaf_sidebar.html' %}
+
+        <div class="content">
+            <div class="folders">
+                <div>
+                    <select id="financeType" style="padding: 5px 10px;font-size: 1rem;margin-right: 5px;" onchange="switchFinanceType()">
+                        <option value="income">Income/Sale</option>
+                        <option value="expenses">Expenses</option>
+                    </select>
+                    <input type="search" id="searchInput" placeholder="Search income/sales..." style="padding:5px 10px;font-size:1rem;border:1px solid #ccc;border-radius:5px;width:320px;">
+                    <button id="searchBtn" style="padding:6px 10px;font-size:1rem;background-color:#156fcf;color:white;border:none;border-radius:5px;cursor:pointer;">Search</button>
+                </div>
+
+                <button style="padding: 6px 10px;font-size: 1rem;background-color: #4CAF50;color: white;border: none;border-radius: 5px;cursor: pointer;" onclick="openAddGroupModal()">Add Group</button>
+                <button id="exportBtn" style="padding: 6px 10px;font-size: 1rem;background-color: #0F4275;color: white;border: none;border-radius: 5px;cursor: pointer;margin-left:8px;" onclick="exportToPDF()">Export PDF</button>
+            </div>
+
+            <!-- Groups Container -->
+            <div id="groupsContainer">
+                <!-- Groups will be loaded dynamically -->
+            </div>
+
+            <div id="totalSection" class="total">
+                <p id="totalLabel">Total Income/Sales</p>
+                <p id="totalAmount">₱371,000.00</p>
+            </div>
+            <div id="netIncomeSection" class="total" style="display: none;">
+                <p>Total Net Income</p>
+                <p id="netIncomeAmount">₱87,850.00</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Group Modal -->
+    <div id="addGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Group</h2>
+                <span class="close" onclick="closeAddGroupModal()">&times;</span>
+            </div>
+            <form id="addGroupForm">
+                <div class="form-group">
+                    <label for="newGroupNameInput">Group Name *</label>
+                    <input type="text" id="newGroupNameInput" placeholder="Enter group name" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddGroupModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Transaction Modal -->
+    <div id="addTransactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Transaction</h2>
+                <span class="close" onclick="closeAddModal()">&times;</span>
+            </div>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="transactionDate">Date *</label>
+                    <input type="date" id="transactionDate" required>
+                </div>
+                <div class="form-group" id="groupSelectGroup">
+                    <label for="transactionGroup" id="groupLabel">Group *</label>
+                    <select id="transactionGroup" required>
+                        <option value="">Select or Add Group</option>
+                        <!-- Groups will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group" id="newGroupContainer" style="display: none;">
+                    <label for="newGroupName">New Group Name *</label>
+                    <input type="text" id="newGroupName" placeholder="Enter new group name" required>
+                </div>
+                <div class="form-group">
+                    <label for="transactionDescription">Items *</label>
+                    <textarea id="transactionDescription" placeholder="Enter items" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="transactionUnits">Units</label>
+                    <input type="number" id="transactionUnits" step="1" min="0" placeholder="0" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="transactionAmount">Price (₱) *</label>
+                    <input type="number" id="transactionAmount" step="0.01" min="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="transactionReceipt">Receipt</label>
+                    <input type="file" id="transactionReceipt" accept="image/*,.pdf,.doc,.docx,.txt">
+                    <div id="transactionReceiptPreview" style="margin-top: 5px;"></div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="editTransactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Transaction</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editTransactionForm">
+                <input type="hidden" id="editTransactionId">
+                <div class="form-group">
+                    <label for="editTransactionDate">Date *</label>
+                    <input type="date" id="editTransactionDate" required>
+                </div>
+                <div class="form-group" id="editGroupSelectGroup">
+                    <label for="editTransactionGroup">Group *</label>
+                    <select id="editTransactionGroup" required>
+                        <option value="">Select Group</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editTransactionDescription">Items *</label>
+                    <textarea id="editTransactionDescription" placeholder="Enter items" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editTransactionUnits">Units</label>
+                    <input type="number" id="editTransactionUnits" step="1" min="0" placeholder="0" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="editTransactionAmount">Price (₱) *</label>
+                    <input type="number" id="editTransactionAmount" step="0.01" min="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTransactionReceipt">Receipt</label>
+                    <input type="file" id="editTransactionReceipt" accept="image/*,.pdf,.doc,.docx,.txt">
+                    <div id="editTransactionReceiptPreview" style="margin-top: 5px;"></div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+    <script>
+        let currentTransactionType = 'income';
+        let allTransactions = [];
+        let transactionsData = null;
+        let groupsData = {};
+
+        // Load transactions on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactions();
+            setupSearchListeners();
+
+            // Add Group Form
+            document.getElementById('addGroupForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const groupName = document.getElementById('newGroupNameInput').value.trim();
+                if (groupName && !groupsData[groupName]) {
+                    groupsData[groupName] = [];
+                    renderGroups(groupsData, currentTransactionType);
+                    closeAddGroupModal();
+                } else {
+                    alert('Group name already exists or invalid.');
+                }
+            });
+        });
+
+        function setupSearchListeners() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+
+            // Dynamic search as you type
+            searchInput.addEventListener('input', handleSearch);
+            searchBtn.addEventListener('click', handleSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+
+            // Group select change
+            document.getElementById('transactionGroup').addEventListener('change', function() {
+                const newGroupContainer = document.getElementById('newGroupContainer');
+                if (this.value === 'add-new') {
+                    newGroupContainer.style.display = 'block';
+                    document.getElementById('newGroupName').required = true;
+                } else {
+                    newGroupContainer.style.display = 'none';
+                    document.getElementById('newGroupName').required = false;
+                }
+            });
+
+            // File input change for add form
+            document.getElementById('transactionReceipt').addEventListener('change', function() {
+                const preview = document.getElementById('transactionReceiptPreview');
+                if (this.files[0]) {
+                    preview.innerHTML = `<span style="color:#2E7D32;font-size:0.9rem;">${this.files[0].name}</span>`;
+                } else {
+                    preview.innerHTML = '';
+                }
+            });
+
+            // File input change for edit form
+            document.getElementById('editTransactionReceipt').addEventListener('change', function() {
+                const preview = document.getElementById('editTransactionReceiptPreview');
+                if (this.files[0]) {
+                    preview.innerHTML = `<span style="color:#2E7D32;font-size:0.9rem;">${this.files[0].name}</span>`;
+                }
+            });
+        }
+
+        function groupTransactions(transactions) {
+            const groups = {};
+            transactions.forEach(t => {
+                const group = t.source;
+                if (!groups[group]) groups[group] = [];
+                groups[group].push(t);
+            });
+            return groups;
+        }
+
+        function loadTransactions() {
+            const financeType = document.getElementById('financeType').value;
+
+            fetch(`/api/finance/transactions?transaction_type=${financeType}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        allTransactions = data.transactions;
+                        transactionsData = data;
+                        groupsData = groupTransactions(data.transactions);
+                        renderGroups(groupsData, financeType);
+                        updateTotals(data);
+                    } else {
+                        console.error('Error loading transactions:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const financeType = document.getElementById('financeType').value;
+
+            if (searchTerm === '') {
+                renderGroups(groupsData, financeType);
+                return;
+            }
+
+            const filteredGroups = {};
+            Object.keys(groupsData).forEach(group => {
+                const filteredTransactions = groupsData[group].filter(t =>
+                    (t.source || '').toLowerCase().includes(searchTerm) ||
+                    (t.description || '').toLowerCase().includes(searchTerm) ||
+                    (t.date || '').toLowerCase().includes(searchTerm) ||
+                    (t.amount ? t.amount.toString() : '').includes(searchTerm) ||
+                    (t.receipt || '').toLowerCase().includes(searchTerm)
+                );
+                if (filteredTransactions.length > 0) {
+                    filteredGroups[group] = filteredTransactions;
+                }
+            });
+
+            renderGroups(filteredGroups, financeType);
+        }
+
+        function renderGroups(groups, type) {
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = '';
+            const groupNames = Object.keys(groups);
+            if (groupNames.length === 0) {
+                container.innerHTML = '<div class="no-groups">No transactions found. Add a group to get started.</div>';
+                return;
+            }
+            groupNames.forEach(groupName => {
+                const transactions = groups[groupName];
+                const total = transactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group';
+                groupDiv.innerHTML = `
+                    <div class="group-header" onclick="toggleGroup(this)">
+                        <div style="display: flex; align-items: center;">
+                            <div class="group-title">${groupName}</div>
+                            <span class="arrow-icon">&#9660;</span>
+                        </div>
+                        <div class="group-total">Total: ₱${total.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    </div>
+                    <div class="group-content">
+                        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                            <button class="group-btn group-add-btn" style="margin-right: 10px;" onclick="event.stopPropagation(); openAddModal('${groupName}')">Add Transaction</button>
+                            <button class="group-btn group-remove-btn" onclick="event.stopPropagation(); removeGroup('${groupName}')">Remove Group</button>
+                        </div>
+                        <table class="group-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Units</th>
+                                    <th>Price</th>
+                                    <th>Receipt</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${transactions.map(t => `
+                                    <tr>
+                                        <td>${t.date}</td>
+                                        <td>${t.description || '-'}</td>
+                                        <td>${t.units || 1}</td>
+                                        <td>₱${parseFloat(t.amount).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td>${t.receipt ? `<a href="/${t.receipt}" download style="color:#2E7D32;text-decoration:none;">Download</a>` : '-'}</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn edit-btn" onclick="openEditModal(${t.id})">Edit</button>
+                                                <button class="action-btn delete-btn" onclick="deleteTransaction(${t.id})">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(groupDiv);
+            });
+        }
+
+        function toggleGroup(header) {
+            const content = header.nextElementSibling;
+            const isExpanded = content.style.display === 'block';
+            content.style.display = isExpanded ? 'none' : 'block';
+            header.classList.toggle('expanded', !isExpanded);
+        }
+
+        function removeGroup(groupName) {
+            if (!confirm(`Are you sure you want to remove the group "${groupName}"? This will delete all transactions in this group.`)) {
+                return;
+            }
+            const transactions = groupsData[groupName] || [];
+            const deletePromises = transactions.map(t =>
+                fetch(`/api/finance/transactions/${t.id}`, { method: 'DELETE' }).then(r => r.json())
+            );
+            Promise.all(deletePromises)
+                .then(results => {
+                    if (results.every(r => r.success)) {
+                        loadTransactions();
+                        alert('Group removed successfully!');
+                    } else {
+                        alert('Error removing some transactions');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while removing the group');
+                });
+        }
+
+        function updateTotals(data) {
+            const totalAmount = document.getElementById('totalAmount');
+            const netIncomeAmount = document.getElementById('netIncomeAmount');
+            const financeType = document.getElementById('financeType').value;
+
+            if (financeType === 'income') {
+                totalAmount.textContent = '₱' + data.total_income.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            } else {
+                totalAmount.textContent = '₱' + data.total_expenses.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                netIncomeAmount.textContent = '₱' + data.net_income.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+        }
+
+        function switchFinanceType() {
+            const financeType = document.getElementById('financeType').value;
+            const searchInput = document.getElementById('searchInput');
+            const totalLabel = document.getElementById('totalLabel');
+            const totalAmount = document.getElementById('totalAmount');
+            const netIncomeSection = document.getElementById('netIncomeSection');
+
+            currentTransactionType = financeType;
+
+            if (financeType === 'income') {
+                netIncomeSection.style.display = 'none';
+                searchInput.placeholder = 'Search income/sales...';
+                totalLabel.textContent = 'Total Income/Sales';
+                totalAmount.style.color = '#4CAF50';
+            } else if (financeType === 'expenses') {
+                netIncomeSection.style.display = 'flex';
+                searchInput.placeholder = 'Search expenses...';
+                totalLabel.textContent = 'Total Expenses';
+                totalAmount.style.color = '#f44336';
+            }
+
+            loadTransactions();
+        }
+
+        function openAddModal(groupName = null) {
+            const modal = document.getElementById('addTransactionModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const groupLabel = document.getElementById('groupLabel');
+            const select = document.getElementById('transactionGroup');
+            const newGroupContainer = document.getElementById('newGroupContainer');
+
+            modalTitle.textContent = 'Add Transaction';
+            if (currentTransactionType === 'income') {
+                groupLabel.textContent = 'Income Group *';
+            } else {
+                groupLabel.textContent = 'Expense Category *';
+            }
+
+            // Populate group select
+            select.innerHTML = '<option value="">Select Group</option>';
+            Object.keys(groupsData).forEach(g => {
+                const option = document.createElement('option');
+                option.value = g;
+                option.textContent = g;
+                select.appendChild(option);
+            });
+            const addNewOption = document.createElement('option');
+            addNewOption.value = 'add-new';
+            addNewOption.textContent = 'Add New Group';
+            select.appendChild(addNewOption);
+
+            if (groupName && groupName !== 'add-new') {
+                // Adding to specific existing group
+                select.value = groupName;
+                select.disabled = true;
+                document.getElementById('groupSelectGroup').style.display = 'none';
+                newGroupContainer.style.display = 'none';
+                document.getElementById('newGroupName').required = false;
+            } else {
+                document.getElementById('groupSelectGroup').style.display = 'block';
+                select.disabled = false;
+                if (groupName === 'add-new') {
+                    select.value = 'add-new';
+                    newGroupContainer.style.display = 'block';
+                    document.getElementById('newGroupName').required = true;
+                } else {
+                    newGroupContainer.style.display = 'none';
+                    document.getElementById('newGroupName').required = false;
+                }
+            }
+
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transactionDate').value = today;
+
+            // Reset units to default value
+            document.getElementById('transactionUnits').value = 1;
+
+            modal.style.display = 'block';
+        }
+
+        function openAddGroupModal() {
+            document.getElementById('addGroupModal').style.display = 'block';
+        }
+
+        function closeAddGroupModal() {
+            document.getElementById('addGroupModal').style.display = 'none';
+            document.getElementById('addGroupForm').reset();
+        }
+
+        function closeAddModal() {
+            const modal = document.getElementById('addTransactionModal');
+            modal.style.display = 'none';
+            document.getElementById('transactionForm').reset();
+            document.getElementById('transactionReceiptPreview').innerHTML = '';
+            document.getElementById('groupSelectGroup').style.display = 'block';
+            document.getElementById('transactionGroup').disabled = false;
+            document.getElementById('newGroupContainer').style.display = 'none';
+            document.getElementById('newGroupName').required = false;
+        }
+
+        function openEditModal(transactionId) {
+            const transaction = allTransactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+
+            const modal = document.getElementById('editTransactionModal');
+
+            document.getElementById('editTransactionId').value = transaction.id;
+            document.getElementById('editTransactionDate').value = transaction.date;
+            document.getElementById('editTransactionDescription').value = transaction.description;
+            document.getElementById('editTransactionUnits').value = transaction.units || 1;
+            document.getElementById('editTransactionAmount').value = transaction.amount;
+
+            const groupSelect = document.getElementById('editTransactionGroup');
+            groupSelect.innerHTML = '<option value="">Select Group</option>';
+            Object.keys(groupsData).forEach(g => {
+                const option = document.createElement('option');
+                option.value = g;
+                option.textContent = g;
+                groupSelect.appendChild(option);
+            });
+            groupSelect.value = transaction.source;
+
+            // Display current receipt
+            const receiptPreview = document.getElementById('editTransactionReceiptPreview');
+            if (transaction.receipt) {
+                receiptPreview.innerHTML = `<a href="/${transaction.receipt}" download style="color:#2E7D32;text-decoration:none;">Current Receipt (Download)</a>`;
+            } else {
+                receiptPreview.innerHTML = '';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editTransactionModal');
+            modal.style.display = 'none';
+            document.getElementById('editTransactionForm').reset();
+            document.getElementById('editTransactionReceiptPreview').innerHTML = '';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addTransactionModal');
+            const editModal = document.getElementById('editTransactionModal');
+            const addGroupModal = document.getElementById('addGroupModal');
+            if (event.target == addModal) {
+                closeAddModal();
+            }
+            if (event.target == editModal) {
+                closeEditModal();
+            }
+            if (event.target == addGroupModal) {
+                closeAddGroupModal();
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const groupSelect = document.getElementById('transactionGroup');
+            const source = groupSelect.value === 'add-new' ? document.getElementById('newGroupName').value : groupSelect.value;
+            const formData = new FormData();
+            formData.append('date', document.getElementById('transactionDate').value);
+            formData.append('transaction_type', currentTransactionType);
+            formData.append('source', source);
+            formData.append('description', document.getElementById('transactionDescription').value);
+            formData.append('units', document.getElementById('transactionUnits').value);
+            formData.append('amount', document.getElementById('transactionAmount').value);
+
+            const receiptFile = document.getElementById('transactionReceipt').files[0];
+            if (receiptFile) {
+                formData.append('receipt', receiptFile);
+            }
+
+            fetch('/api/finance/transactions', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    closeAddModal();
+                    loadTransactions();
+                    alert('Transaction added successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding transaction');
+            });
+        });
+
+        // Handle edit form submission
+        document.getElementById('editTransactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const transactionId = document.getElementById('editTransactionId').value;
+            const formData = new FormData();
+            formData.append('date', document.getElementById('editTransactionDate').value);
+            formData.append('transaction_type', currentTransactionType);
+            formData.append('source', document.getElementById('editTransactionGroup').value);
+            formData.append('description', document.getElementById('editTransactionDescription').value);
+            formData.append('units', document.getElementById('editTransactionUnits').value);
+            formData.append('amount', document.getElementById('editTransactionAmount').value);
+
+            const receiptFile = document.getElementById('editTransactionReceipt').files[0];
+            if (receiptFile) {
+                formData.append('receipt', receiptFile);
+            }
+
+            fetch(`/api/finance/transactions/${transactionId}`, {
+                method: 'PUT',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    closeEditModal();
+                    loadTransactions();
+                    alert('Transaction updated successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating transaction');
+            });
+        });
+
+        function deleteTransaction(id) {
+            if (!confirm('Are you sure you want to delete this transaction?')) {
+                return;
+            }
+
+            fetch(`/api/finance/transactions/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    loadTransactions();
+                    alert('Transaction deleted successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the transaction');
+            });
+        }
+
+        async function exportToPDF() {
+            try {
+                // fetch both income and expenses to build a full report
+                const [incRes, expRes] = await Promise.all([
+                    fetch('/api/finance/transactions?transaction_type=income').then(r => r.json()),
+                    fetch('/api/finance/transactions?transaction_type=expenses').then(r => r.json())
+                ]);
+
+                if (!incRes.success || !expRes.success) {
+                    alert('Failed to fetch transactions for PDF export');
+                    return;
+                }
+
+                const incomes = incRes.transactions || [];
+                const expenses = expRes.transactions || [];
+                const totalIncome = incRes.total_income || 0;
+                const totalExpenses = expRes.total_expenses || 0;
+                const netIncome = (typeof incRes.net_income !== 'undefined') ? incRes.net_income : (totalIncome - totalExpenses);
+
+                // build printable report element
+                const report = document.createElement('div');
+                report.style.background = '#fff';
+                report.style.color = '#000';
+                report.style.padding = '24px';
+                report.style.fontFamily = "Segoe UI, Tahoma, Geneva, Verdana, sans-serif";
+                report.innerHTML = `
+                    <div style="display:flex;align-items:stretch;justify-content:space-between;margin:0 0 12px 0;border:1px solid #000;padding:0;height:110px;width:100%;">
+                        <div style="width:20%;text-align:left;border-right:1px solid #000;display:flex;align-items:center;justify-content:center;padding:0;">
+                            <img src="/static/img/logo.png" style="max-height:90%;max-width:100px;display:block;" alt="logo">
+                        </div>
+                        <div style="width:60%;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0;">
+                            <h2 style="margin:0;font-size:18px;line-height:1;">Lonoy Agriventures Corp.</h2>
+                            <div style="font-weight:600;">Lonoy Ponds Aqua Farm (LPAF)</div>
+                            <div style="margin-top:4px;">Brgy. Lonoy, Sapian, Capiz</div>
+                        </div>
+                        <div style="width:20%;text-align:right;border-left:1px solid #000;display:flex;align-items:center;justify-content:center;padding:0;">
+                            <div style="min-height:1px;">&nbsp;</div>
+                        </div>
+                    </div>
+                    <h3 style="text-align:center;margin:18px 0;">Income / Sales</h3>
+                     <table style="width:100%;border-collapse:collapse;margin-bottom:18px;">
+                         <thead>
+                             <tr>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Date</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Items</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Units</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:right;">Price</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Receipt</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             ${incomes.map(i => `
+                                 <tr>
+                                     <td style="border:1px solid #000;padding:6px;">${i.date}</td>
+                                     <td style="border:1px solid #000;padding:6px;">${i.description || ''}</td>
+                                     <td style="border:1px solid #000;padding:6px;">${i.units || 1}</td>
+                                     <td style="border:1px solid #000;padding:6px;text-align:right;">₱${parseFloat(i.amount).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                                     <td style="border:1px solid #000;padding:6px;">${i.receipt ? 'Yes' : ''}</td>
+                                 </tr>
+                             `).join('')}
+                         </tbody>
+                     </table>
+
+                     <h3 style="text-align:center;margin:18px 0;">Expenses</h3>
+                     <table style="width:100%;border-collapse:collapse;margin-bottom:18px;">
+                         <thead>
+                             <tr>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Date</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Items</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Units</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:right;">Price</th>
+                                 <th style="border:1px solid #000;padding:8px;text-align:left;">Receipt</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             ${expenses.map(e => `
+                                 <tr>
+                                     <td style="border:1px solid #000;padding:6px;">${e.date}</td>
+                                     <td style="border:1px solid #000;padding:6px;">${e.description || ''}</td>
+                                     <td style="border:1px solid #000;padding:6px;">${e.units || 1}</td>
+                                     <td style="border:1px solid #000;padding:6px;text-align:right;">₱${parseFloat(e.amount).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                                     <td style="border:1px solid #000;padding:6px;">${e.receipt ? 'Yes' : ''}</td>
+                                 </tr>
+                             `).join('')}
+                         </tbody>
+                     </table>
+
+                     <h3 style="text-align:center;margin:18px 0;">Summary</h3>
+                     <table style="width:100%;border-collapse:collapse;margin:0 auto 20px;">
+                         <tr>
+                             <td style="border:1px solid #000;padding:8px;">Total Income</td>
+                             <td style="border:1px solid #000;padding:8px;text-align:right;">₱${parseFloat(totalIncome).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                         </tr>
+                         <tr>
+                             <td style="border:1px solid #000;padding:8px;">Total Expenses</td>
+                             <td style="border:1px solid #000;padding:8px;text-align:right;">₱${parseFloat(totalExpenses).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                         </tr>
+                         <tr>
+                             <td style="border:1px solid #000;padding:8px;">Net Income</td>
+                             <td style="border:1px solid #000;padding:8px;text-align:right;">₱${parseFloat(netIncome).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                         </tr>
+                     </table>
+
+                     <div style="width:100%;margin-top:12px;display:flex;justify-content:space-between;">
+                         <div style="font-weight:600;">Prepared by: Add Min</div>
+                         <div style="font-weight:600;">Approved by: Jeb Sama</div>
+                     </div>
+                `;
+
+                document.body.appendChild(report);
+
+                const opt = {
+                    margin:       10,
+                    filename:     'lpaf_finance_report.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                await html2pdf().from(report).set(opt).save();
+                // cleanup
+                report.remove();
+            } catch (err) {
+                console.error(err);
+                alert('Error exporting PDF');
+            }
+        }
+    </script>
+</body>
+</html>

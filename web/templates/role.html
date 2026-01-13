@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Role - Lonoi Agriventures Corp</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-dark: #2E7D32;
+            --primary-light: #e8f5e8;
+            --accent-color: #66BB6A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+
+        .role-selection-title {
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .role-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.2);
+        }
+
+        .role-card.tvet {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8f1);
+        }
+
+        .role-card.lpaf {
+            background: linear-gradient(135deg, #e3f2fd, #f1f8ff);
+        }
+
+        .role-card.admin {
+            background: linear-gradient(135deg, #fff3e0, #fff8f1);
+        }
+
+        .role-card.tvet:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .role-card.lpaf:hover {
+            border-color: #2196F3;
+            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.3);
+        }
+
+        .role-card.admin:hover {
+            border-color: #FF9800;
+            box-shadow: 0 5px 20px rgba(255, 152, 0, 0.3);
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .role-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .role-card.admin {
+            grid-column: 1 / -1;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 480px) {
+            .roles-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+
+            .role-card.admin {
+                grid-column: 1;
+            }
+
+            .login-container {
+                margin: 1rem;
+                padding: 1.5rem;
+                max-width: 350px;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .role-selection-title {
+                font-size: 1.3rem;
+            }
+
+            .role-icon {
+                font-size: 2.5rem;
+            }
+
+            .role-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Company Logo -->
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Lonoi Agriventures Corp Logo" width="120" height="120">
+        </div>
+        
+        <div class="roles-grid">
+            <div class="role-card tvet" onclick="selectRole('tvet')">
+                <span class="role-icon">🎓</span>
+                <div class="role-title">LAC - TVET</div>
+                <div class="role-description">Technical & Vocational Education Training</div>
+            </div>
+            
+            <div class="role-card lpaf" onclick="selectRole('lpaf')">
+                <span class="role-icon">🌱</span>
+                <div class="role-title">LPAF</div>
+                <div class="role-description">Lonoy Ponds Aqua Farm</div>
+            </div>
+            
+            {% if user_type == 'admin' %}
+            <div class="role-card admin" onclick="selectRole('admin')">
+                <span class="role-icon">⚙️</span>
+                <div class="role-title">ADMIN</div>
+                <div class="role-description">System Administration</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="footer">
+            &copy; 2025 Lonoi Agriventures Corp. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        function selectRole(role) {
+            // Add visual feedback
+            const roleCards = document.querySelectorAll('.role-card');
+            roleCards.forEach(card => {
+                card.style.transform = 'scale(0.95)';
+                card.style.opacity = '0.7';
+            });
+            
+            const selectedCard = document.querySelector(`.role-card.${role}`);
+            selectedCard.style.transform = 'scale(1.05)';
+            selectedCard.style.opacity = '1';
+            
+            // Reset after animation
+            setTimeout(() => {
+                roleCards.forEach(card => {
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                });
+            }, 200);
+            
+            // Handle role selection
+            setTimeout(() => {
+                window.location.href = `/auth/select-role/${role}`;
+            }, 300);
+        }
+
+        // Add hover effect enhancement
+        const roleCards = document.querySelectorAll('.role-card');
+        roleCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>

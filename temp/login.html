@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Lonoi Agriventures Corp</title>
+    <style>
+        :root {
+            /* TVET Theme (Green) - Default */
+            --primary-color: #4CAF50;
+            --primary-dark: #2E7D32;
+            --primary-light: #e8f5e8;
+            --accent-color: #66BB6A;
+        }
+
+        /* LPAF Theme (Sky Blue) */
+        .theme-lpaf {
+            --primary-color: #03A9F4;
+            --primary-dark: #0277BD;
+            --primary-light: #E1F5FE;
+            --accent-color: #29B6F6;
+        }
+
+        /* Admin Theme (Yellow/Orange) */
+        .theme-admin {
+            --primary-color: #FF9800;
+            --primary-dark: #F57C00;
+            --primary-light: #FFF8E1;
+            --accent-color: #FFB74D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.5s ease;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.5s ease;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--primary-color);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .forgot-password {
+            margin-top: 1rem;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        /* Tab Styles */
+        .login-tabs {
+            display: flex;
+            margin: -2rem -2rem 2rem -2rem;
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .tab:first-child {
+            border-radius: 15px 0 0 0;
+        }
+
+        .tab:last-child {
+            border-radius: 0 15px 0 0;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary-dark);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: color 0.5s ease;
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .tab-indicator {
+            font-size: 0.7rem;
+            display: block;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .tab {
+                font-size: 0.8rem;
+                padding: 10px 5px;
+            }
+
+            .tab-indicator {
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Login Type Tabs -->
+        <div class="login-tabs">
+            <button class="tab active" onclick="switchTab('tvet', this)">
+                LAC - TVET
+                <span class="tab-indicator">Technical Education</span>
+            </button>
+            <button class="tab" onclick="switchTab('lpaf', this)">
+                LPAF
+                <span class="tab-indicator">Agriculture Fund</span>
+            </button>
+            <button class="tab" onclick="switchTab('admin', this)">
+                ADMIN
+                <span class="tab-indicator">System Admin</span>
+            </button>
+        </div>
+
+        <!-- Company Logo -->
+        <div class="logo">
+            <img src="logo.png" alt="Lonoi Agriventures Corp Logo" width="120" height="120">
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        
+        <div class="forgot-password">
+            <a href="#" onclick="alert('Please contact your administrator for password reset.')">Forgot Password?</a>
+        </div>
+        
+        <div class="footer">
+            &copy; 2025 Lonoi Agriventures Corp. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        let currentLoginType = 'tvet';
+
+        function switchTab(loginType, tabElement) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            tabElement.classList.add('active');
+            
+            // Update current login type
+            currentLoginType = loginType;
+            
+            // Switch theme based on login type
+            switchTheme(loginType);
+            
+            // Update form behavior based on login type
+            updateFormForLoginType(loginType);
+        }
+
+        function switchTheme(loginType) {
+            const body = document.body;
+            
+            // Remove existing theme classes
+            body.classList.remove('theme-tvet', 'theme-lpaf', 'theme-admin');
+            
+            // Add appropriate theme class
+            switch(loginType) {
+                case 'tvet':
+                    // Default green theme (no additional class needed)
+                    break;
+                case 'lpaf':
+                    body.classList.add('theme-lpaf');
+                    break;
+                case 'admin':
+                    body.classList.add('theme-admin');
+                    break;
+            }
+        }
+
+        function updateFormForLoginType(loginType) {
+            const usernameLabel = document.querySelector('label[for="username"]');
+            const passwordLabel = document.querySelector('label[for="password"]');
+            
+            switch(loginType) {
+                case 'tvet':
+                    usernameLabel.textContent = 'Student/Staff ID';
+                    break;
+                case 'lpaf':
+                    usernameLabel.textContent = 'Member ID';
+                    break;
+                case 'admin':
+                    usernameLabel.textContent = 'Admin Username';
+                    break;
+                default:
+                    usernameLabel.textContent = 'Username';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username && password) {
+                // Simple validation - replace with actual authentication logic
+                let loginMessage = '';
+                
+                switch(currentLoginType) {
+                    case 'tvet':
+                        loginMessage = 'Welcome to LAC - TVET System!';
+                        break;
+                    case 'lpaf':
+                        loginMessage = 'Welcome to LPAF Portal!';
+                        break;
+                    case 'admin':
+                        loginMessage = 'Welcome to Admin Dashboard!';
+                        break;
+                }
+                
+                // Demo validation (replace with actual authentication)
+                if ((currentLoginType === 'admin' && username === 'admin' && password === 'password') ||
+                    (currentLoginType === 'tvet' && username === 'tvet001' && password === 'tvet123') ||
+                    (currentLoginType === 'lpaf' && username === 'lpaf001' && password === 'lpaf123')) {
+                    alert(`Login successful! ${loginMessage}`);
+                    // Redirect based on login type
+                    // window.location.href = currentLoginType + '-dashboard.html';
+                } else {
+                    alert(`Invalid credentials for ${currentLoginType.toUpperCase()}. Please try again.`);
+                }
+            } else {
+                alert('Please fill in both username and password.');
+            }
+        });
+        
+        // Add some interactive feedback
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.2s';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
