@@ -2,7 +2,7 @@
     .sidebar {
         width: 15vw;
         background-color: #105DAF;
-        background-image: url("{{ url_for('static', filename='img/logo.png') }}");
+        
         background-size: calc(100% - 20px) auto;
         background-repeat: no-repeat;
         background-position: center calc(100% - 10px);
@@ -62,4 +62,5 @@
     <a href="{{ url_for('main.lpaf_employees') }}" class="{% if request.endpoint == 'main.lpaf_employees' %}active{% endif %}">Employees</a>
     <a href="{{ url_for('main.lpaf_finance') }}" class="{% if request.endpoint == 'main.lpaf_finance' %}active{% endif %}">Finance</a>
     <a href="{{ url_for('main.lpaf_study') }}" class="{% if request.endpoint == 'main.lpaf_study' %}active{% endif %}">Study</a>
+
 </div>
