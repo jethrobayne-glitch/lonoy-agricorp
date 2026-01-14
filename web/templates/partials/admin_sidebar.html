@@ -3,7 +3,7 @@
         width: 15vw;
         /* Yellow/amber theme */
         background-color: #FBC02D; /* amber-600 */
-        background-image: url("{{ url_for('static', filename='img/logo.png') }}");
+        
         background-size: calc(100% - 20px) auto;
         background-repeat: no-repeat;
         background-position: center calc(100% - 10px);
@@ -63,3 +63,4 @@
     <a href="{{ url_for('main.admin_logs') }}" class="{% if request.endpoint == 'main.admin_logs' %}active{% endif %}">Logs</a>
     <a href="{{ url_for('main.admin_users') }}" class="{% if request.endpoint == 'main.admin_users' %}active{% endif %}">Users</a>
 </div>
+
