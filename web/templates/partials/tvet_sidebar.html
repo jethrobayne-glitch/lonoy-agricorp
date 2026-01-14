@@ -2,7 +2,7 @@
     .sidebar {
         width: 15vw;
         background-color: #4CAF50;
-        background-image: url("{{ url_for('static', filename='img/logo.png') }}");
+        
         background-size: calc(100% - 20px) auto;
         background-repeat: no-repeat;
         background-position: center calc(100% - 10px);
@@ -62,4 +62,5 @@
     <a href="{{ url_for('main.tvet_students') }}" class="{% if request.endpoint == 'main.tvet_students' %}active{% endif %}">Students</a>
     <a href="{{ url_for('main.tvet_employees') }}" class="{% if request.endpoint == 'main.tvet_employees' %}active{% endif %}">Employees</a>
     <a href="{{ url_for('main.tvet_finance') }}" class="{% if request.endpoint == 'main.tvet_finance' %}active{% endif %}">Finance</a>
+
 </div>
