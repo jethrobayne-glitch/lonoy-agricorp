@@ -375,11 +375,11 @@
 
             <div id="totalSection" class="total">
                 <p id="totalLabel">Total Income/Sales</p>
-                <p id="totalAmount">₱371,000.00</p>
+                <p id="totalAmount" style="color: rgb(255 255 255);">₱371,000.00</p>
             </div>
             <div id="netIncomeSection" class="total" style="display: none;">
                 <p>Total Net Income</p>
-                <p id="netIncomeAmount">₱87,850.00</p>
+                <p id="netIncomeAmount" style="color: rgb(255 255 255);">₱87,850.00</p>
             </div>
         </div>
     </div>
@@ -641,7 +641,7 @@
                             <div class="group-title">${groupName}</div>
                             <span class="arrow-icon">&#9660;</span>
                         </div>
-                        <div class="group-total">Total: ₱${total.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="group-total" style="color: rgb(255 255 255);">Total: ₱${total.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                     </div>
                     <div class="group-content">
                         <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
@@ -1078,7 +1078,7 @@
                          </tr>
                          <tr>
                              <td style="border:1px solid #000;padding:8px;">Total Expenses</td>
-                             <td style="border:1px solid #000;padding:8px;text-align:right;">₱${parseFloat(totalExpenses).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                             <td style="border:1px solid #000;padding:8px;text-align:right; "color: rgb(255 255 255);"">₱${parseFloat(totalExpenses).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
                          </tr>
                          <tr>
                              <td style="border:1px solid #000;padding:8px;">Net Income</td>
