@@ -257,8 +257,7 @@ def get_students():
             query = query.filter(
                 db.or_(
                     Student.name.ilike(search_term),
-                    Student.batch.ilike(search_term),
-                    Student.certificate.ilike(search_term)
+                    Student.batch.ilike(search_term)
                 )
             )
         
@@ -2510,5 +2509,6 @@ def delete_finance_transaction(transaction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'An error occurred: {str(e)}'})
+
 
 
