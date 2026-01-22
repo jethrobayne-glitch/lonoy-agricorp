@@ -137,7 +137,7 @@
 
     .total p:last-child {
         font-size: 1.3rem;
-        color: #4CAF50;
+        color: #ffffff;
     }
 
     /* Modal Styles */
@@ -375,11 +375,11 @@
 
             <div id="totalSection" class="total">
                 <p id="totalLabel">Total Income/Sales</p>
-                <p id="totalAmount" style="color: rgb(255 255 255);">₱371,000.00</p>
+                <p id="totalAmount" >₱371,000.00</p>
             </div>
             <div id="netIncomeSection" class="total" style="display: none;">
                 <p>Total Net Income</p>
-                <p id="netIncomeAmount" style="color: rgb(255 255 255);">₱87,850.00</p>
+                <p id="netIncomeAmount" >₱87,850.00</p>
             </div>
         </div>
     </div>
@@ -739,12 +739,12 @@
                 netIncomeSection.style.display = 'none';
                 searchInput.placeholder = 'Search income/sales...';
                 totalLabel.textContent = 'Total Income/Sales';
-                totalAmount.style.color = '#4CAF50';
+                totalAmount.style.color = '#ffffff';
             } else if (financeType === 'expenses') {
                 netIncomeSection.style.display = 'flex';
                 searchInput.placeholder = 'Search expenses...';
                 totalLabel.textContent = 'Total Expenses';
-                totalAmount.style.color = '#f44336';
+                totalAmount.style.color = '#ffffff';
             }
 
             loadTransactions();
