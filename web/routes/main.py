@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, send_from_directory, current_app, session
 from web.routes.auth import login_required, role_required
 from web.models import db, User, ActivityLog, Student, Certificate, Employee, EmployeeDocument, LPAFInventoryFolder, LPAFProduction, LPAFStatus, LPAFInventoryMaterial, TVETInventoryFolder, TVETCoreCompetency, TVETCategory, TVETInspectionRemark, TVETInventoryMaterial, StudyFolder, StudyVideo, FinanceTransaction
+from web.models.LPAFInventoryMaterial import generate_item_code
 from sqlalchemy import desc
 import os
 from werkzeug.utils import secure_filename
@@ -2507,6 +2508,7 @@ def delete_finance_transaction(transaction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'An error occurred: {str(e)}'})
+
 
 
 
