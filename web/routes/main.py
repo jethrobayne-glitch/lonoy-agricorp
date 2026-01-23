@@ -1108,7 +1108,7 @@ def create_lpaf_material():
             return jsonify({'success': False, 'message': 'Item name is required'})
         
         # Optional fields
-        item_code = data.get('item_code', '').strip()
+        item_code = generate_item_code()
         description = data.get('description', '').strip()
         folder_id = data.get('folder_id') or None
         production_id = data.get('production_id') or None
@@ -1164,7 +1164,6 @@ def update_lpaf_material(material_id):
             return jsonify({'success': False, 'message': 'Item name is required'})
         
         # Optional fields
-        item_code = data.get('item_code', '').strip()
         description = data.get('description', '').strip()
         folder_id = data.get('folder_id') or None
         production_id = data.get('production_id') or None
@@ -1188,7 +1187,6 @@ def update_lpaf_material(material_id):
         
         # Update material
         material.item_name = item_name
-        material.item_code = item_code
         material.description = description
         material.folder_id = folder_id
         material.production_id = production_id
@@ -2509,6 +2507,7 @@ def delete_finance_transaction(transaction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'An error occurred: {str(e)}'})
+
 
 
 
