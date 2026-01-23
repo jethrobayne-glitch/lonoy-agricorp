@@ -495,7 +495,7 @@
                     
                     <div class="form-group">
                         <label for="materialItemCode">Item Code</label>
-                        <input type="text" id="materialItemCode" name="item_code" placeholder="e.g., RICE-001">
+                        <input type="text" id="materialItemCode" name="item_code" readonly>
                     </div>
                 </div>
                 
@@ -976,6 +976,7 @@
         function showAlert(containerId, message, type) {
             const container = document.getElementById(containerId);
             container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+
         }
 
         async function exportToPDF() {
