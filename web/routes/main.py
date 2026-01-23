@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, send_from_directory, current_app, session
 from web.routes.auth import login_required, role_required
 from web.models import db, User, ActivityLog, Student, Certificate, Employee, EmployeeDocument, LPAFInventoryFolder, LPAFProduction, LPAFStatus, LPAFInventoryMaterial, TVETInventoryFolder, TVETCoreCompetency, TVETCategory, TVETInspectionRemark, TVETInventoryMaterial, StudyFolder, StudyVideo, FinanceTransaction
+from app.web.models.lpaf_inventory import LPAFInventoryMaterial
 from sqlalchemy import desc
 import os
 from werkzeug.utils import secure_filename
@@ -1108,7 +1109,7 @@ def create_lpaf_material():
             return jsonify({'success': False, 'message': 'Item name is required'})
         
         # Optional fields
-        item_code = generate_item_code()
+        item_code = LPAFInventoryMaterial.generate_item_code()
         description = data.get('description', '').strip()
         folder_id = data.get('folder_id') or None
         production_id = data.get('production_id') or None
@@ -2507,6 +2508,7 @@ def delete_finance_transaction(transaction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'An error occurred: {str(e)}'})
+
 
 
 
