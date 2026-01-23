@@ -90,6 +90,7 @@ class LPAFInventoryMaterial(db.Model):
 
         return f'<LPAFInventoryMaterial {self.item_name}>'
 
+    @staticmethod
     def generate_item_code(prefix="LPAF"):
         """Generates Item Code in Sequence"""
         last_item = (
@@ -108,3 +109,4 @@ class LPAFInventoryMaterial(db.Model):
             last_number = 0
 
         return f"{prefix}-{last_number +  1:03d}"
+
