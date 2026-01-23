@@ -62,7 +62,7 @@ class LPAFInventoryMaterial(db.Model):
     
     # Material details
     item_name = db.Column(db.String(200), nullable=False)
-    item_code = db.Column(db.String(50), nullable=True)
+    item_code = db.Column(db.String(50), unique=True, nullable=True)
     description = db.Column(db.Text, nullable=True)
     
     # Timestamps
@@ -87,4 +87,24 @@ class LPAFInventoryMaterial(db.Model):
         }
     
     def __repr__(self):
+
         return f'<LPAFInventoryMaterial {self.item_name}>'
+
+    def generate_item_code(prefix="LPAF"):
+        """Generates Item Code in Sequence"""
+        last_item = (
+            LPAFInventoryMaterial.query
+            .filter(LPAFInventoryMaterial.item_code.like(f"{prefix}-%"))
+            .order_by(LPAFInventoryMaterial.id.desc())
+            .first()
+        )
+
+        if not last_item or not last_item.item_code:
+            return f"{prefix}-001"
+
+        try:
+            last_number = int(last_item.item_code.split('-')[-1])
+        except ValueError:
+            last_number = 0
+
+        return f"{prefix}-{last_number +  1:03d}"
