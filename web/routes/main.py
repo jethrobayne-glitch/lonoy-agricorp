@@ -200,7 +200,7 @@ def get_logs():
 def tvet_inventory():
     # Get folders for the dropdown using new TVET models
     folders = TVETInventoryFolder.query.all()
-    materials = TVETInventoryMaterial.query.all()
+    materials = TVETInventoryMaterial.query.order_by(TVETInventoryMaterial.created_at.desc()).all()
     user_type = session.get('user_type', 'user')
     return render_template('tvet/inventory.html', folders=folders, materials=materials, user_type=user_type)
 
@@ -2508,6 +2508,7 @@ def delete_finance_transaction(transaction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'An error occurred: {str(e)}'})
+
 
 
 
