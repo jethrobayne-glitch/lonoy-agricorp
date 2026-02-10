@@ -1092,7 +1092,11 @@ def get_lpaf_materials():
         if folder_id:
             query = query.filter_by(folder_id=folder_id)
         
-        materials = query.all()
+        materials = query.order_by(
+            LPAFInventoryMaterial.created_at.desc(),
+            LPAFInventoryMaterial.id.desc()
+        ).all()
+
         materials_data = [material.to_dict() for material in materials]
         
         return jsonify({'success': True, 'materials': materials_data})
@@ -2515,6 +2519,7 @@ def delete_finance_transaction(transaction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'An error occurred: {str(e)}'})
+
 
 
 
