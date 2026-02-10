@@ -1642,7 +1642,11 @@ def get_tvet_materials():
         if folder_id:
             query = query.filter_by(folder_id=folder_id)
         
-        materials = query.all()
+        materials = query.order_by(
+            TVETInventoryMaterial.created_at.desc(),
+            TVETInventoryMaterial.id.desc()
+        ).all()
+
         materials_data = []
         for material in materials:
             materials_data.append(material.to_dict())
@@ -2511,6 +2515,7 @@ def delete_finance_transaction(transaction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'An error occurred: {str(e)}'})
+
 
 
 
